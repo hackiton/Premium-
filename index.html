@@ -1,498 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#050505" />
-  <title>UNKNOWN</title>
-  <style>
-    :root {
-      --bg: #050505;
-      --bg-soft: #0c0c10;
-      --text: #f5f7ff;
-      --muted: #9aa0b0;
-      --neon: #8f7cff;
-      --neon-soft: rgba(143, 124, 255, 0.35);
-      --card: rgba(255, 255, 255, 0.04);
-      --border: rgba(255, 255, 255, 0.12);
-      --blur: 18px;
-      --radius: 18px;
-      --cursor-size: 240px;
-      --ease: cubic-bezier(0.22, 1, 0.36, 1);
-      --fast: 280ms;
-      --slow: 800ms;
-      color-scheme: dark;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNKNOWN</title>
+    <style>
+        /* CSS Variables & Resets */
+        :root {
+            --bg-color: #030303;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --neon-accent: rgba(140, 82, 255, 0.3);
+            --neon-glow: rgba(140, 82, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Hide default cursor for custom one */
+        }
 
-    html {
-      scroll-behavior: smooth;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    body {
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.45;
-      overflow-x: hidden;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-    }
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
 
-    main {
-      position: relative;
-      z-index: 2;
-    }
+        /* Noise Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
 
-    .ambient {
-      position: fixed;
-      inset: -30vmax;
-      z-index: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(143, 124, 255, 0.25), transparent 45%),
-        radial-gradient(circle at 80% 25%, rgba(59, 130, 246, 0.12), transparent 35%),
-        radial-gradient(circle at 60% 80%, rgba(236, 72, 153, 0.09), transparent 40%),
-        linear-gradient(140deg, #020204, #0a0a11 45%, #050508 80%);
-      filter: blur(20px) saturate(110%);
-      animation: ambientShift 16s var(--ease) infinite alternate;
-      transform: translateZ(0);
-      will-change: transform;
-    }
+        /* Custom Cursor */
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate3d(-50%, -50%, 0);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
 
-    @keyframes ambientShift {
-      0% { transform: translate3d(-3%, -2%, 0) scale(1.03); }
-      50% { transform: translate3d(2%, -1%, 0) scale(1.08); }
-      100% { transform: translate3d(3%, 2%, 0) scale(1.05); }
-    }
+        .cursor-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--neon-accent) 0%, transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            transform: translate3d(-50%, -50%, 0);
+            filter: blur(40px);
+            transition: transform 0.1s linear;
+        }
 
-    .noise {
-      position: fixed;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
-      opacity: 0.14;
-      mix-blend-mode: soft-light;
-      background-image:
-        radial-gradient(rgba(255, 255, 255, 0.06) 0.45px, transparent 0.45px),
-        radial-gradient(rgba(255, 255, 255, 0.05) 0.45px, transparent 0.45px);
-      background-position: 0 0, 12px 12px;
-      background-size: 24px 24px;
-      animation: grain 0.24s steps(2) infinite;
-    }
+        /* Animated Background Gradients */
+        .bg-gradients {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
 
-    @keyframes grain {
-      0% { transform: translate(0, 0); }
-      25% { transform: translate(-1.2%, 0.8%); }
-      50% { transform: translate(0.8%, -0.9%); }
-      75% { transform: translate(1.1%, 1%); }
-      100% { transform: translate(0, 0); }
-    }
+        .gradient-blob {
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(40, 20, 60, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 20s infinite alternate ease-in-out;
+        }
 
-    .cursor-glow {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--cursor-size);
-      height: var(--cursor-size);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0;
-      transform: translate3d(-50%, -50%, 0);
-      background: radial-gradient(circle, rgba(143, 124, 255, 0.2) 0%, rgba(88, 70, 180, 0.12) 35%, transparent 70%);
-      filter: blur(16px);
-      transition: opacity 240ms ease;
-      will-change: transform;
-    }
+        .gradient-blob:nth-child(2) {
+            top: 40%;
+            right: -10%;
+            background: radial-gradient(circle, rgba(10, 30, 60, 0.4) 0%, transparent 70%);
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
 
-    @media (pointer: fine) {
-      .cursor-glow.active { opacity: 1; }
-    }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10vw, 10vh) scale(1.2); }
+        }
 
-    .wrap {
-      width: min(100% - 2rem, 1100px);
-      margin: 0 auto;
-    }
+        /* Entry Screen */
+        #entry-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s var(--ease-out-expo), visibility 1.5s;
+        }
 
-    section {
-      position: relative;
-      padding: 5.5rem 0;
-    }
+        #entry-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
 
-    .hero {
-      min-height: 100svh;
-      display: grid;
-      align-items: center;
-      padding-top: 2.5rem;
-    }
+        .enter-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 1.5rem 4rem;
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
 
-    .hero-card {
-      padding: clamp(1.5rem, 5vw, 3rem);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
-      backdrop-filter: blur(var(--blur));
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset,
-                  0 25px 45px rgba(0,0,0,0.45),
-                  0 0 50px rgba(143, 124, 255, 0.09);
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(18px) scale(0.985);
-      filter: blur(10px);
-      animation: heroIn 1100ms var(--ease) 180ms forwards;
-    }
+        .enter-btn:hover {
+            background: var(--text-main);
+            color: var(--bg-color);
+            box-shadow: 0 0 30px var(--neon-accent);
+            transform: scale(1.05);
+        }
 
-    @keyframes heroIn {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-      }
-    }
+        /* Main Content Container */
+        #main-content {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 2s var(--ease-out-expo);
+        }
 
-    h1 {
-      font-size: clamp(2.8rem, 12vw, 7rem);
-      letter-spacing: 0.08em;
-      font-weight: 800;
-      line-height: 0.95;
-      text-transform: uppercase;
-      text-shadow: 0 0 30px rgba(143, 124, 255, 0.22);
-    }
+        #main-content.visible {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    .subtitle {
-      margin-top: 1rem;
-      font-size: clamp(1rem, 2.8vw, 1.4rem);
-      color: var(--muted);
-      max-width: 38ch;
-      opacity: 0.94;
-    }
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
 
-    .controls {
-      margin-top: 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
+        .hero h1 {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(100px) scale(0.9);
+            filter: blur(20px);
+        }
 
-    .btn {
-      --btn-bg: rgba(255,255,255,0.05);
-      appearance: none;
-      border: 1px solid rgba(255,255,255,0.18);
-      color: var(--text);
-      background: var(--btn-bg);
-      border-radius: 999px;
-      padding: 0.75rem 1.25rem;
-      font-weight: 600;
-      font-size: 0.92rem;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: transform var(--fast) var(--ease),
-                  box-shadow var(--fast) var(--ease),
-                  border-color var(--fast) ease,
-                  background-color var(--fast) ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 2.7rem;
-      will-change: transform;
-    }
+        .hero p {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            opacity: 0;
+            transform: translateY(30px);
+            filter: blur(10px);
+        }
 
-    .btn:hover,
-    .btn:focus-visible {
-      transform: translateY(-2px) scale(1.01);
-      border-color: rgba(143, 124, 255, 0.75);
-      box-shadow: 0 8px 26px rgba(143, 124, 255, 0.24), 0 0 20px rgba(143, 124, 255, 0.18);
-      outline: none;
-    }
+        /* Animation classes added via JS */
+        .animate-hero h1 {
+            animation: textReveal 2s var(--ease-out-expo) forwards;
+            animation-delay: 0.5s;
+        }
 
-    .btn.primary {
-      --btn-bg: linear-gradient(140deg, rgba(143, 124, 255, 0.28), rgba(143, 124, 255, 0.1));
-    }
+        .animate-hero p {
+            animation: textReveal 2s var(--ease-out-expo) forwards;
+            animation-delay: 0.8s;
+        }
 
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
+        @keyframes textReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
 
-    .panel {
-      border: 1px solid var(--border);
-      background: var(--card);
-      border-radius: var(--radius);
-      backdrop-filter: blur(14px);
-      padding: 1.2rem;
-      transform: translateY(14px) scale(0.99);
-      opacity: 0;
-      filter: blur(10px);
-      transition: transform var(--slow) var(--ease), opacity var(--slow) var(--ease), filter var(--slow) var(--ease), border-color 280ms ease;
-    }
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
 
-    .panel h2 {
-      font-size: clamp(1.2rem, 4vw, 1.6rem);
-      margin-bottom: 0.45rem;
-      font-weight: 700;
-    }
+        .glitch:hover::before,
+        .glitch:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+        }
 
-    .panel p {
-      color: var(--muted);
-      font-size: 0.98rem;
-      max-width: 60ch;
-    }
+        .glitch:hover::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c1;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+            animation: glitch-anim 0.2s infinite linear alternate-reverse;
+        }
 
-    .panel:hover {
-      border-color: rgba(143, 124, 255, 0.42);
-    }
+        .glitch:hover::after {
+            left: -2px;
+            text-shadow: -2px 0 #00fff9;
+            clip-path: polygon(0 80%, 100% 20%, 100% 100%, 0 100%);
+            animation: glitch-anim-2 0.3s infinite linear alternate-reverse;
+        }
 
-    .reveal.in {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-      filter: blur(0);
-    }
+        @keyframes glitch-anim {
+            0% { clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%); transform: translate(0); }
+            20% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); transform: translate(-2px, 2px); }
+            40% { clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%); transform: translate(2px, -2px); }
+            60% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); transform: translate(2px, 2px); }
+            80% { clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%); transform: translate(-2px, -2px); }
+            100% { clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%); transform: translate(0); }
+        }
 
-    .hidden-content {
-      max-height: 0;
-      opacity: 0;
-      overflow: clip;
-      transform: translateY(14px) scale(0.985);
-      transition: max-height 1s var(--ease), opacity 700ms ease, transform 700ms var(--ease);
-    }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%); transform: translate(0); }
+            20% { clip-path: polygon(0 3%, 100% 3%, 100% 3%, 0 3%); transform: translate(2px, -2px); }
+            40% { clip-path: polygon(0 5%, 100% 5%, 100% 20%, 0 20%); transform: translate(-2px, 2px); }
+            60% { clip-path: polygon(0 20%, 100% 20%, 100% 20%, 0 20%); transform: translate(2px, -2px); }
+            80% { clip-path: polygon(0 40%, 100% 40%, 100% 40%, 0 40%); transform: translate(-2px, 2px); }
+            100% { clip-path: polygon(0 30%, 100% 30%, 100% 30%, 0 30%); transform: translate(0); }
+        }
 
-    .hidden-content.open {
-      max-height: 1200px;
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+        /* Content Section & Glassmorphism */
+        .content-section {
+            padding: 10vh 5vw;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
 
-    .glitch {
-      position: relative;
-      display: inline-block;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 5vh;
+        }
 
-    .glitch::before,
-    .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
-      mix-blend-mode: screen;
-      transition: opacity 180ms ease;
-    }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            transition: transform 0.4s var(--ease-out-expo), box-shadow 0.4s ease, border-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .glitch::before {
-      color: #7dd3fc;
-      transform: translate(-1px, 0);
-      text-shadow: 1px 0 #7dd3fc;
-      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 40%);
-    }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
 
-    .glitch::after {
-      color: #f472b6;
-      transform: translate(1px, 0);
-      text-shadow: -1px 0 #f472b6;
-      clip-path: polygon(0 58%, 100% 52%, 100% 100%, 0 100%);
-    }
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--neon-accent);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
 
-    .glitch:hover::before,
-    .glitch:hover::after,
-    .glitch:focus-visible::before,
-    .glitch:focus-visible::after {
-      opacity: 0.85;
-      animation: glitchShift 240ms steps(2) 2;
-    }
+        .glass-card:hover::before {
+            opacity: 1;
+        }
 
-    @keyframes glitchShift {
-      0% { transform: translate(0, 0); }
-      33% { transform: translate(1px, -1px); }
-      66% { transform: translate(-1px, 1px); }
-      100% { transform: translate(0, 0); }
-    }
+        .glass-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
 
-    footer {
-      padding: 3.5rem 0 2rem;
-      text-align: center;
-      color: rgba(245, 247, 255, 0.72);
-      font-size: 0.88rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+        .glass-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
 
-    [data-parallax] {
-      will-change: transform;
-      transition: transform 160ms linear;
-    }
+        /* Scroll Reveal Transitions */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            filter: blur(10px);
+            transition: opacity 1s var(--ease-out-expo), transform 1s var(--ease-out-expo), filter 1s var(--ease-out-expo);
+        }
 
-    @media (min-width: 700px) {
-      .panel-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
 
-      .panel {
-        padding: 1.4rem;
-      }
-    }
+        /* Footer */
+        footer {
+            height: 30vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 15vh;
+            position: relative;
+            z-index: 10;
+        }
 
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-      }
-      .ambient,
-      .noise,
-      .cursor-glow { display: none; }
-      .hero-card,
-      .panel,
-      .hidden-content { opacity: 1; transform: none; filter: none; max-height: none; }
-    }
-  </style>
+        footer p {
+            font-size: 0.8rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .enter-btn { padding: 1rem 3rem; }
+            .grid { gap: 1rem; }
+            .glass-card { padding: 2rem 1.5rem; }
+            .cursor-glow, .cursor-dot { display: none; } /* Disable custom cursor on mobile */
+            * { cursor: auto; }
+        }
+    </style>
 </head>
 <body>
-  <div class="ambient" aria-hidden="true"></div>
-  <div class="cursor-glow" aria-hidden="true" id="cursorGlow"></div>
-  <div class="noise" aria-hidden="true"></div>
 
-  <main>
-    <section class="hero">
-      <div class="wrap">
-        <article class="hero-card" data-parallax="0.09">
-          <h1 class="glitch" data-text="UNKNOWN" tabindex="0">UNKNOWN</h1>
-          <p class="subtitle">You don't know me. You just feel me.</p>
-          <div class="controls">
-            <button class="btn primary" id="enterBtn" type="button">Enter</button>
-            <a class="btn" href="#identity">Drift Down</a>
-          </div>
-        </article>
-      </div>
-    </section>
+    <div class="noise"></div>
 
-    <section id="identity">
-      <div class="wrap">
-        <div class="panel-grid">
-          <article class="panel reveal" data-parallax="0.04">
-            <h2 class="glitch" data-text="Silence Speaks">Silence Speaks</h2>
-            <p>A presence built from shadows, motion, and tone—never fully seen, always remembered.</p>
-          </article>
-          <article class="panel reveal" data-parallax="0.06">
-            <h2 class="glitch" data-text="Signal in Static">Signal in Static</h2>
-            <p>Every detail is intentional: depth, grain, blur, and glow folded into a cinematic rhythm.</p>
-          </article>
-          <article class="panel reveal" data-parallax="0.03">
-            <h2 class="glitch" data-text="Unmasked Soon">Unmasked Soon</h2>
-            <p>The story is not told. It is discovered—one interaction at a time.</p>
-          </article>
-        </div>
+    <div class="cursor-glow" id="cursor-glow"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
 
-        <div class="hidden-content" id="hiddenSection" aria-hidden="true">
-          <section class="panel reveal" style="margin-top: 1rem;">
-            <h2 class="glitch" data-text="Hidden Identity">Hidden Identity</h2>
-            <p>I don't wear a name. I wear intention. If you reached this far, you've already seen enough to know this isn't for everyone.</p>
-          </section>
-        </div>
-      </div>
-    </section>
+    <div class="bg-gradients">
+        <div class="gradient-blob"></div>
+        <div class="gradient-blob"></div>
+    </div>
 
-    <footer>
-      Not for everyone.
-    </footer>
-  </main>
+    <div id="entry-screen">
+        <button class="enter-btn glitch" data-text="ENTER" id="enter-btn">ENTER</button>
+    </div>
 
-  <script>
-    (() => {
-      const root = document.documentElement;
-      const cursor = document.getElementById('cursorGlow');
-      const enterBtn = document.getElementById('enterBtn');
-      const hiddenSection = document.getElementById('hiddenSection');
-      const reveals = Array.from(document.querySelectorAll('.reveal'));
-      const parallaxNodes = Array.from(document.querySelectorAll('[data-parallax]'));
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    <main id="main-content">
+        
+        <section class="hero" id="hero">
+            <h1 class="glitch parallax" data-text="UNKNOWN" data-speed="0.5">UNKNOWN</h1>
+            <p class="parallax" data-speed="0.2">You don't know me. You just feel me.</p>
+        </section>
 
-      if (!reduceMotion) {
-        let rafId = 0;
-        let cx = -999;
-        let cy = -999;
-        let tx = cx;
-        let ty = cy;
+        <section class="content-section">
+            <div class="grid">
+                <div class="glass-card reveal">
+                    <h3>FILE_01</h3>
+                    <p>Fragmented data packets. The origin is untraceable. We only observe the echoes left behind in the mainframe.</p>
+                </div>
+                <div class="glass-card reveal" style="transition-delay: 0.1s;">
+                    <h3>ENCRYPTED</h3>
+                    <p>Access denied. The algorithms shift recursively. What you seek is buried beneath layers of digital noise.</p>
+                </div>
+                <div class="glass-card reveal" style="transition-delay: 0.2s;">
+                    <h3>GHOST_MAC</h3>
+                    <p>A phantom presence on the network. Bandwidth anomalies suggest constant surveillance, yet no source IP is found.</p>
+                </div>
+            </div>
+        </section>
 
-        const onMove = (e) => {
-          tx = e.clientX;
-          ty = e.clientY;
-          cursor.classList.add('active');
-          if (!rafId) rafId = requestAnimationFrame(animateCursor);
-        };
+        <footer>
+            <p class="reveal">Not for everyone.</p>
+        </footer>
 
-        const animateCursor = () => {
-          cx += (tx - cx) * 0.18;
-          cy += (ty - cy) * 0.18;
-          cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%)`;
-          const dist = Math.hypot(tx - cx, ty - cy);
-          if (dist > 0.3) {
-            rafId = requestAnimationFrame(animateCursor);
-          } else {
-            rafId = 0;
-          }
-        };
+    </main>
 
-        window.addEventListener('pointermove', onMove, { passive: true });
-        window.addEventListener('pointerdown', () => {
-          cursor.style.filter = 'blur(10px)';
-          setTimeout(() => { cursor.style.filter = 'blur(16px)'; }, 110);
-        }, { passive: true });
-      }
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- Elements ---
+            const entryScreen = document.getElementById('entry-screen');
+            const enterBtn = document.getElementById('enter-btn');
+            const mainContent = document.getElementById('main-content');
+            const heroSection = document.getElementById('hero');
+            const cursorDot = document.getElementById('cursor-dot');
+            const cursorGlow = document.getElementById('cursor-glow');
+            const parallaxElements = document.querySelectorAll('.parallax');
+            const interactables = document.querySelectorAll('button, .glass-card, .glitch');
 
-      enterBtn.addEventListener('click', () => {
-        hiddenSection.classList.add('open');
-        hiddenSection.setAttribute('aria-hidden', 'false');
-        enterBtn.textContent = 'Inside';
-        enterBtn.disabled = true;
-        enterBtn.style.opacity = '0.8';
-        hiddenSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-      });
+            // --- Custom Cursor Logic ---
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let glowX = mouseX;
+            let glowY = mouseY;
 
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in');
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.22, rootMargin: '0px 0px -8% 0px' });
+            // Detect if device supports hover (disables custom cursor math on mobile)
+            const isTouchDevice = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
 
-      reveals.forEach((el) => revealObserver.observe(el));
+            if (!isTouchDevice) {
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    
+                    // Instant update for dot
+                    cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+                });
 
-      if (!reduceMotion) {
-        let ticking = false;
-        const onScroll = () => {
-          if (ticking) return;
-          ticking = true;
-          requestAnimationFrame(() => {
-            const y = window.scrollY;
-            parallaxNodes.forEach((el) => {
-              const speed = parseFloat(el.dataset.parallax || '0.04');
-              el.style.transform = `translate3d(0, ${y * speed}px, 0)`;
+                // Smooth follow for glow
+                const animateCursor = () => {
+                    glowX += (mouseX - glowX) * 0.15;
+                    glowY += (mouseY - glowY) * 0.15;
+                    cursorGlow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0)`;
+                    requestAnimationFrame(animateCursor);
+                };
+                animateCursor();
+
+                // Cursor hover effects
+                interactables.forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) scale(2)`;
+                        cursorDot.style.backgroundColor = 'var(--neon-accent)';
+                        cursorGlow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0) scale(1.5)`;
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) scale(1)`;
+                        cursorDot.style.backgroundColor = '#fff';
+                        cursorGlow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0) scale(1)`;
+                    });
+                });
+            }
+
+            // --- Entry Interaction & Reveal ---
+            enterBtn.addEventListener('click', () => {
+                // Fade out entry screen
+                entryScreen.classList.add('hidden');
+                
+                // Show main content after brief delay
+                setTimeout(() => {
+                    mainContent.classList.add('visible');
+                    heroSection.classList.add('animate-hero');
+                    
+                    // Initialize scroll observer after entry
+                    initScrollObserver();
+                }, 800);
             });
-            ticking = false;
-          });
-        };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
-      }
 
-      window.addEventListener('load', () => {
-        root.style.scrollBehavior = reduceMotion ? 'auto' : 'smooth';
-      });
-    })();
-  </script>
+            // --- Parallax Scrolling ---
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY;
+                
+                parallaxElements.forEach(el => {
+                    const speed = el.getAttribute('data-speed');
+                    const yPos = -(scrolled * speed);
+                    el.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                });
+            });
+
+            // --- Scroll Reveal Observer ---
+            const initScrollObserver = () => {
+                const revealElements = document.querySelectorAll('.reveal');
+                
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px 0px -100px 0px',
+                    threshold: 0.1
+                };
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            observer.unobserve(entry.target); // Reveal only once
+                        }
+                    });
+                }, observerOptions);
+
+                revealElements.forEach(el => observer.observe(el));
+            };
+        });
+    </script>
 </body>
 </html>
